@@ -1,0 +1,30 @@
+	.job-position{
+		margin-top: 10%;
+	}
+	.job-num{
+		background-color: #34434e !important;
+		color: #ffffff !important;
+	}
+	.brows-job-list{
+		height: 42vh;
+	}
+	.brows-job-company-img{
+		width: 100px !important;
+		margin:10px auto;
+		height: 100px !important;
+		display:inline-block;
+		background: #f4f5f7;
+		vertical-align: middle;
+		border-color: #07b107 !important; 
+		border-radius: 50%;
+		line-height: 100px !important;
+	}
+	.brows-job-company-img span{
+		font-size: 2.4em !important;
+	}
+	.brows-job-list:hover{
+		cursor: pointer;
+	}
+	.brows-job-list:hover .brows-job-company-img{
+		background-color: #07b107;
+	}

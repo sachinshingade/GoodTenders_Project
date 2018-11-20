@@ -1,0 +1,8 @@
+<!-- Captcha CSS -->
+#ran{
+		color: #ec5525;
+		background-image: url('assets/img/captcha.jpg');
+		font-weight: bold;
+		font-size: 25px;
+		text-align: center;
+	}

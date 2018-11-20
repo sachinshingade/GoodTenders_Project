@@ -1,0 +1,441 @@
+<!-- Contract Awarded Page -->
+
+<?php
+    session_start();
+    include('header.php');
+    require 'dbconnect.php';
+
+    mysqli_query ($conn,"set character_set_results='utf8'");
+
+    $pagination = "";
+        if(isset($_GET["page"])) 
+        { 
+            $page  = $_GET["page"]; 
+        } 
+        else{
+            $page=1; 
+        }
+        
+        
+            if(isset($_SESSION["id"])):
+                $num_rec_per_page = 10;
+            else:
+                if($page ==3 )
+                {
+                    $num_rec_per_page = 2;
+                    
+                }else if ($page > 3){
+                    
+                    $num_rec_per_page = 0;
+                    
+                }else{
+                    
+                    $num_rec_per_page = 10;
+                }
+            endif;
+    
+    
+    $start_from = ($page-1) * $num_rec_per_page; 
+    
+?>
+
+<title>Contract Awarded | Tenders By Regions | Tenders By Country | Tenders By Keywords | Tenders By Political Regions | Tenders By Sector | Tenders By Funding Agency</title>
+
+<style type="text/css">
+	.card-body
+	{
+		margin-left:-5%;
+		margin-right:-5%;
+		padding: 15px;
+		border: 1px solid #BFBFBF;
+    	background-color: white;
+    	box-shadow: 3px 3px 3px #aaaaaa;
+	}
+	.awards{
+		margin-top:3%;
+		margin-bottom: 3%;
+	}
+	.advance-search-job:hover
+	{
+		border: 1px solid #BFBFBF;
+		box-shadow: 3px 3px 3px #aaaaaa;
+	}
+	.pr-btn{
+		margin-left: 10% !important;
+		text-align: center;
+		font-weight: bold;
+	}
+	.advance-search-caption{
+    	cursor: pointer;
+    }
+
+    .advance-search-caption:hover h4{
+    	color: #337ab7;
+    }
+    #btpadd{
+        margin:5%;
+    }
+    .priceInfo
+    {
+        padding: 3%;
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 1px solid #BFBFBF;
+        box-shadow: 3px 3px 3px #aaaaaa;
+        background-color: #35434e;
+        color: #fff;
+    }
+</style>
+	<section>
+		<div class="container">
+		<div class="col-lg-12 col-md-12 col-sm-12">	
+		<div class="row">
+			<div class="main-heading awards">
+				<p>categorized data</p>
+				<h2><span> Contract Awarded</span></h2>
+			</div>
+		</div>
+
+		<!-- Contract Awarded Details Fetched From DB Tables -->
+
+            <div class="card-body">
+            <div class='row no-mrg' style='margin-top:5px;'>
+    		<div class='col-md-4 col-sm-4 col-lg-4'>
+    		<strong>TITLE</strong>
+    		</div>
+    		<div class='col-md-2 col-sm-2 col-lg-2'>
+    		<strong>COUNTRY</strong>
+    		</div>
+    		<div class='col-md-2 col-sm-2 col-lg-2'>
+    		<strong>SECTOR</strong>
+    		</div>
+    		<div class='col-md-2 col-sm-2 col-lg-2'>
+    		<strong>VALUE</strong>
+    		</div>	
+    		<div class='col-md-2 col-sm-2 col-lg-2'>
+    		<strong>QUICK VIEW</strong>
+    		</div>
+    		</div><hr>	
+        <?php
+
+        if(empty($_SESSION["id"]))
+        {
+        	$sql = "SELECT  a.*, b.Country,c.Sector_Name,d.Currency_Code FROM tbl_contract_award 
+        			a INNER JOIN tbl_country b
+            		ON a.purch_country = b.code
+            		INNER JOIN tbl_currency_code d
+            		ON b.Country = d.Country_name
+        			LEFT JOIN tbl_sector c  
+            		ON a.sector = c.Sub_Sector_Id ORDER BY a.id DESC LIMIT $start_from, $num_rec_per_page";
+
+                    //change left join once you have matched data in all tables                    
+
+			$result = mysqli_query($conn,$sql);
+            $row = mysqli_num_rows($result);
+            $total_records = mysqli_num_rows($result);  
+            $total_pages = 3;
+
+
+            global $pagination;
+                        $pagination =  "<div class='row'>
+                                        <ul class='pagination'>
+                                        <li class='disabled'>";
+                    
+                        $pagination .= "<a>" . '&laquo;' . "</a> </li>"; // Goto 1st page  
+                        for ($i = 1; $i <= $total_pages; $i++)
+                        {
+                            $active = '';
+                            if(isset($_GET['page']) && $i == $_GET['page'])
+                            {
+                                $active = 'class="active"';        
+                            }
+                        $pagination .= "<li $active><a href='contract_awards.php?Page=allAds&page=" . $i . "'>" . $i . "</a></li>";
+                        }
+                        $pagination .=  "<li >
+                                            <a>" . 
+                                            '&raquo;' . "</a> </li>
+                                        </ul></div>";
+                        #echo $pagination;
+        }else if(isset($_SESSION["id"])){       
+
+            $sql = "SELECT  a.*, b.Country,c.Sector_Name,d.Currency_Code FROM tbl_contract_award 
+                    a INNER JOIN tbl_country b
+                    ON a.purch_country = b.code
+                    INNER JOIN tbl_currency_code d
+                    ON b.Country = d.Country_name
+                    LEFT JOIN tbl_sector c
+                    ON a.sector = c.Sub_Sector_Id ORDER BY a.id DESC LIMIT $start_from, $num_rec_per_page";
+
+                    //change left join once you have matched data in all tables
+
+            $result = mysqli_query($conn,$sql);
+            $row = mysqli_num_rows($result);
+            $total_records = mysqli_num_rows($result);  
+            $total_pages = ceil($total_records / $num_rec_per_page);
+
+            $psql="SELECT  a.*, b.Country,c.Sector_Name,d.Currency_Code FROM tbl_contract_award 
+                    a INNER JOIN tbl_country b
+                    ON a.purch_country = b.code
+                    INNER JOIN tbl_currency_code d
+                    ON b.Country = d.Country_name
+                    LEFT JOIN tbl_sector c
+                    ON a.sector = c.Sub_Sector_Id ORDER BY a.id DESC LIMIT 1000";
+
+                    //change left join once you have matched data in all tables
+
+            $presult =  mysqli_query($conn,$psql);
+            $prow = mysqli_num_rows($presult);                      
+            $ptotal_records = mysqli_num_rows($presult);  //count number of records                     
+            $ptotal_pages = ceil($ptotal_records / $num_rec_per_page);
+                        
+            if ($ptotal_pages <= 10) {
+                            $start = 1;   // Startin pagination
+                            $end   = $ptotal_pages;   // End at total pages
+                        } else { 
+                            // Total page greater than 10
+
+                            // Checks maximum of both n gives out greater one
+                            $start = max(1, ($page - 4));
+
+                            // Checks minimum of both n gives out min one
+                            $end   = min($ptotal_pages, ($page + 5));
+                            
+                            if ($start === 1) {
+                                $end = 10;
+                            } elseif ($end === $ptotal_pages) {
+                                $start = ($ptotal_pages - 9);
+                            }
+                        }
+
+                global $pagination,$start_from,$num_rec_per_page;
+                        $pagination =  "<div class='row'>
+                                            <ul class='pagination'>
+                                                <li class='disabled'>";
+                    
+                        $pagination .=  "<a href='contract_awards.php?Page=allAds&page=1'>" . '&laquo;' . "</a> </li>"; 
+                        // Goto 1st page  
+                        
+                        for ($i = $start; $i <= $end; $i++)
+                        {
+                            $active = '';
+                            if(isset($_GET['page']) && $i == $_GET['page'])
+                            {
+                                $active = 'class="active"';        
+                            }
+                        $pagination .= "<li $active><a href='contract_awards.php?Page=allAds&page=" . $i . "'>" 
+                                            . $i . 
+                                            "</a></li>";
+                        }
+                        $pagination .=  "<li >
+                                            <a class='disabled' href='contract_awards.php?Page=allAds&page=$total_pages'>" 
+                                            . '&raquo;' . "</a> 
+                                        </li>
+                                        </ul></div>";
+                                        
+                        } else {
+                            echo "<h3 class='text-center'> No Tenders Found</h3>";
+                    }
+
+
+
+            $total = $row*100; // For Blur Image Data on 3rd Pages        
+
+  			while($row = mysqli_fetch_assoc($result))
+			{
+
+			$id=$row['id'];	
+			echo " <article class='advance-search-job'>
+			<div class='row no-mrg'>";
+            if(isset($_SESSION["id"])):
+			echo"<div class='col-md-4 col-sm-4 col-lg-4'>
+    		<div class='advance-search-caption' style='margin-left:-10px;' 
+    		onclick='onRedirect(".$row['id'].")' title='Click to See Full Details'>
+    			<h4>".$row['short_descp']."</h4>
+			</div>
+			</div>";
+            else:
+			echo"<div class='col-md-4 col-sm-4 col-lg-4'>
+            <div class='advance-search-caption' style='margin-left:-10px;' 
+            onclick='onModal()' title='Click to See Full Details'>
+                <h4>".$row['short_descp']."</h4>
+            </div>
+            </div>";
+            endif;
+            echo"<div class='col-md-2 col-sm-2 col-lg-2'>
+			<div class='advance-search-job-locat'>
+				<h5><img src='assets/flags/blank.gif' class='flag flag-".strtolower($row['purch_country'])."'/>
+				".$row['Country']."</h5>
+			</div>
+			</div>
+			<div class='col-md-2 col-sm-2 col-lg-2'>
+			<div class='advance-search-job-locat'>";
+            if($row['Sector_Name']!=""){
+                echo "<h5>".$row['Sector_Name']."</h5>";
+            }else{
+                echo "<h5>Others</h5>";
+            }
+            echo "
+			</div>
+			</div>
+			<div class='col-md-2 col-sm-2 col-lg-2'>
+			<div class='advance-search-job-locat'>
+				<h5>".$row['Currency_Code']." ".$row['contract_val']."</h5>
+			</div>
+			</div>
+			<div class='col-md-2 col-sm-2 col-lg-2'>
+			<a href='#".$id."' id='btpadd' data-toggle='modal' class='btn btn-primary' title='View Details'>Quick View</a>
+			</div>
+			</div>
+			</article>";
+
+		?>  
+			<div class="modal fade" id="<?php echo $id ?>">
+    		<div class="modal-dialog">
+        	<div class="modal-content">
+            <div class="modal-header" style="background-color: #07b107;color: #ffffff;">
+              <a href="#" data-dismiss="modal" class="class pull-right"><span class="fa fa-remove"></span></a>
+              <h3 class="modal-title text-center">Contract Awarded Details</h3>
+            </div>
+            <div class="modal-body" style="margin-top: 5%;margin-bottom: 1%;">
+            <?php
+
+                echo "<div class='row'>
+                    <div class='col-md-12 tender_content'>
+                    <h5><strong>Good Tender ID:</strong> ".$row['id']."</h5>
+                    <hr>
+                	</div>
+                    <div class='col-md-12 tender_content'>
+                    <h5><b>Title:</b> ".$row['short_descp']."</h5>  
+                    <hr>
+                    </div>
+                    <div class='col-md-12 tender_content'>";
+                    if($row['Sector_Name']!=""){
+                        echo "<h5><strong>Sector:</strong> ".$row['Sector_Name']."</h5>";
+                    }else{
+                        echo "<h5><strong>Sector:</strong> Others </h5>";
+                    }
+                    echo "
+                    <hr>   
+                    </div>
+                    <div class='col-md-6 tender_content'>
+                    <h5><strong>Country:</strong>
+                    <img src='assets/flags/blank.gif' class='flag flag-".strtolower($row['purch_country'])."'/>
+                     ".$row['Country']."</h5>     
+                    </div>
+                    <div class='col-md-6 tender_content'>
+                    <h5><strong>Value:</strong> ".$row["Currency_Code"]." ".$row['contract_val']." </h5>  
+                    </div>
+                    <div class='col-md-12 tender_content'><hr>
+                    <h5><strong>Description:</strong><br>".substr($row['award_detail'],0,100).".....</h5>
+                    </div>
+                    </div>
+                </div>";
+                if(isset($_SESSION["id"])):
+                    echo "";
+                else:   
+                echo"<div class='modal-footer' style='margin-bottom: -3%;'>
+                    <div class='col-md-12 text-center' style='margin-top: -10px;margin-bottom: -10px;''>    
+                    <h5><b>Register and view more details</b></h5>
+                    </div>
+                    <div class='col-md-offset-2 col-md-4 pr-buy-button'>
+                        <a href='signform.php' class='pr-btn'>Register</a>
+                    </div>  
+                    <div class='col-md-4 pr-buy-button'>
+                        <a href='pricing.php' class='pr-btn'>Pricing</a>
+                    </div>
+                </div>";
+                endif;   
+            echo "</div>
+        </div>
+    </div>";
+    ?>
+		<?php 
+			}
+			
+            if($page == 3)
+            {
+            if(isset($_SESSION["id"])):
+            echo "";
+            else:   
+            //Popup Div on Blur Images 
+
+            echo "<article class='advance-search-job'>
+            <img src='assets/img/blurimg.PNG' class='img-responsive' style='filter:blur(5px);'>
+            <img src='assets/img/blurimg.PNG' class='img-responsive' style='filter:blur(5px);'>
+            <div class='priceInfo'>
+            <h5>
+             More results available for your search. Register and view more details.
+            </h5><br>
+            <div class='col-md-6'>
+            <a href='signform.php' target='_blank' class='btn btn-warning btn-lg btn-block'>Register</a>
+            </div>
+            <div class='col-md-6'>
+            <a href='pricing.php' target='_blank' class='btn btn-success btn-lg btn-block'>See Pricing</a>          
+            </div>
+            </div>
+            </div>
+            </article>
+            </div>";
+        endif;
+
+            }
+            if(mysqli_affected_rows($conn) >= 1){
+                    global $pagination;
+                        echo $pagination;
+                        echo "</div>";                  
+                }else{
+                    echo "No Tenders Available";
+                    echo "</div>";
+                }
+                
+
+?>
+            </div>
+           	</div>
+       </div>
+    </section> 
+
+    <!-- Modal Error For unregistered users-->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel3" aria-hidden="true">
+                    <div class="modal-dialog modal-confirm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="box">
+                                    <img src="assets/img/customer.jpg" class="img-circle img-responsive" />
+                                </div>              
+                                <h4 class="modal-title">Registration Required</h4>  
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Complete specifications of tenders are available to only registered users. Allow us to connect and assist you OR whats-app us at +91 9867848333</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-info" data-dismiss="modal" id="connect_modal" data-toggle="tab">Connect us</button>
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#register" data-dismiss="modal">Register</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>       
+
+<?php
+	include('footer.php');
+?>
+
+			<script type="text/javascript">
+				function onRedirect(id){
+					var noRedirect = '.btn';
+			  		    window.open("contractdetails.php?cwid="+id,"_blank");
+			  			
+					}
+            function onModal(){
+                $('#errorModal').modal('show');
+            }
+            
+            $("#connect_modal").click(function() {
+                $('html,body').animate({
+                scrollTop: $(".footer-widget").offset().top},
+                'slow');
+            });        
+			</script>
