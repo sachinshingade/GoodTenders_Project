@@ -64,7 +64,11 @@
                          ?>       
                          </ul>
                          </div>
-
+			<?php 
+			    if($row){
+				    die("Check line number 68 in funding_agency.php");
+			    }
+		    	?>
                          
                     </div>
                     </div>
